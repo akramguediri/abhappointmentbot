@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  n8n:
+    build: .
+    restart: always
+    ports:
+      - "443:443"  # Corrected port mapping
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=admin
+      - N8N_BASIC_AUTH_PASSWORD=admin123
+      - N8N_PORT=443
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=db
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_DATABASE=n8n
+      - DB_POSTGRESDB_USER=n8n_user
+      - DB_POSTGRESDB_PASSWORD=n8n_password
+      - N8N_PROTOCOL=https
+      - N8N_SSL_KEY=/home/node/.n8n/certificates/privkey.pem
+      - N8N_SSL_CERT=/home/node/.n8n/certificates/fullchain.pem
+      - WEBHOOK_TUNNEL_URL=https://04c1-153-92-90-3.ngrok-free.app          
+      - WEBHOOK_URL=https://04c1-153-92-90-3.ngrok-free.app 
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./certificates:/home/node/.n8n/certificates
+    depends_on:
+      - db
+  db:
+    image: postgres:13
+    restart: always
+    environment:
+      POSTGRES_DB: n8n
+      POSTGRES_USER: n8n_user
+      POSTGRES_PASSWORD: n8n_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  n8n_data:
+  postgres_data:
